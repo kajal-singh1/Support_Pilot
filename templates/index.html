@@ -1,0 +1,836 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupportPilot | IT Service Desk</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --navy: #14213d;
+            --blue: #3563e9;
+            --background: #f5f7fb;
+            --muted: #778197;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: #202b3c;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: var(--navy);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 25px 16px;
+            z-index: 10;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 750;
+            letter-spacing: .3px;
+            padding: 0 12px 28px;
+        }
+
+        .brand i { color: #79a4ff; }
+
+        .nav-heading {
+            color: #9aa9c2;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            padding: 12px 12px 8px;
+            text-transform: uppercase;
+        }
+
+        .side-link {
+            display: flex;
+            gap: 13px;
+            align-items: center;
+            padding: 12px;
+            margin: 4px 0;
+            border-radius: 9px;
+            color: #d4dced;
+            text-decoration: none;
+            font-size: 14px;
+            transition: .2s;
+        }
+
+        .side-link:hover, .side-link.active {
+            background: #263c62;
+            color: white;
+        }
+
+        .side-link i { font-size: 17px; }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 22px;
+            left: 25px;
+            right: 25px;
+            color: #c7d2e4;
+            font-size: 12px;
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 28px 34px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            gap: 15px;
+        }
+
+        .topbar h1 {
+            font-size: 25px;
+            font-weight: 750;
+            margin: 0;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .user-chip {
+            background: white;
+            border: 1px solid #e7eaf0;
+            border-radius: 30px;
+            padding: 9px 15px;
+            font-size: 13px;
+        }
+
+        .panel, .stat-card {
+            background: white;
+            border: 1px solid #e9edf3;
+            border-radius: 13px;
+            box-shadow: 0 3px 14px rgba(30, 48, 80, .035);
+        }
+
+        .stat-card {
+            padding: 20px;
+            height: 100%;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .stat-value {
+            font-size: 29px;
+            font-weight: 750;
+            margin-top: 8px;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            font-size: 19px;
+        }
+
+        .icon-blue { background: #eaf0ff; color: #3563e9; }
+        .icon-orange { background: #fff2df; color: #d88920; }
+        .icon-red { background: #ffebeb; color: #dc4848; }
+        .icon-green { background: #e4f7ed; color: #19945b; }
+
+        .panel {
+            padding: 22px;
+            margin-bottom: 24px;
+        }
+
+        .panel-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .panel-subtitle {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .section-space { margin-top: 28px; }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 650;
+            margin-bottom: 7px;
+        }
+
+        .form-control, .form-select {
+            border-color: #e1e6ee;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(53, 99, 233, .10);
+        }
+
+        .btn-primary {
+            background: var(--blue);
+            border-color: var(--blue);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .btn-primary:hover { background: #244ec9; }
+
+        .btn-outline-secondary {
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .result-panel {
+            background: #f0f6ff;
+            border: 1px solid #dce8ff;
+            border-radius: 11px;
+            padding: 18px;
+        }
+
+        .result-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            height: 100%;
+        }
+
+        .result-item small {
+            color: var(--muted);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .result-item strong { font-size: 15px; }
+
+        .priority, .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .p1 { background: #ffe5e5; color: #c52f38; }
+        .p2 { background: #fff0dc; color: #bd7414; }
+        .p3 { background: #fff8d9; color: #927311; }
+        .p4 { background: #eaf0f7; color: #58677d; }
+
+        .critical { background: #ffe5e5; color: #c52f38; }
+        .high { background: #fff0dc; color: #bd7414; }
+        .medium { background: #fff8d9; color: #927311; }
+        .low { background: #eaf0f7; color: #58677d; }
+
+        .status-open { background: #eaf0ff; color: #3563e9; }
+        .status-progress { background: #fff0dc; color: #bd7414; }
+        .status-resolved { background: #e4f7ed; color: #168451; }
+
+        .table { font-size: 12px; vertical-align: middle; }
+        .table thead th {
+            background: #f8f9fc;
+            color: #69758a;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            padding: 13px 10px;
+            white-space: nowrap;
+        }
+
+        .table td { padding: 13px 10px; }
+        .table tbody tr:hover { background: #fafbfe; }
+
+        .ticket-title { font-weight: 650; color: #27344a; }
+        .muted { color: var(--muted); }
+
+        .filter-row { display: flex; flex-wrap: wrap; gap: 9px; }
+        .filter-row .form-control, .filter-row .form-select {
+            width: auto;
+            min-width: 135px;
+        }
+
+        .chart-wrap { height: 245px; position: relative; }
+
+        .flash-area { margin-bottom: 18px; }
+
+        .section-anchor { scroll-margin-top: 22px; }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 72px; padding: 20px 10px; }
+            .brand { font-size: 0; padding: 5px 10px 28px; }
+            .brand i { font-size: 23px; }
+            .side-link { justify-content: center; padding: 13px 5px; }
+            .side-link span, .nav-heading, .sidebar-footer { display: none; }
+            .main { margin-left: 72px; padding: 22px 18px; }
+        }
+
+        @media (max-width: 576px) {
+            .main { padding: 18px 12px; }
+            .topbar { align-items: flex-start; }
+            .topbar h1 { font-size: 21px; }
+            .user-chip { display: none; }
+            .panel { padding: 15px; }
+            .table-responsive { overflow-x: auto; }
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="brand">
+        <i class="bi bi-headset"></i> SupportPilot
+    </div>
+
+    <div class="nav-heading">Workspace</div>
+
+    <a href="#overview" class="side-link active">
+        <i class="bi bi-grid-1x2"></i><span>Overview</span>
+    </a>
+
+    <a href="#create-ticket" class="side-link">
+        <i class="bi bi-plus-circle"></i><span>Create Ticket</span>
+    </a>
+
+    <a href="#tickets" class="side-link">
+        <i class="bi bi-ticket-detailed"></i><span>All Tickets</span>
+    </a>
+
+    <div class="nav-heading mt-3">Insights</div>
+
+    <a href="#analytics" class="side-link">
+        <i class="bi bi-bar-chart-line"></i><span>Analytics</span>
+    </a>
+
+    <div class="sidebar-footer">
+        <i class="bi bi-shield-check me-1"></i>
+        AI-powered IT Service Desk
+        <div class="mt-2">SupportPilot Demo v1.0</div>
+    </div>
+</aside>
+
+
+<main class="main">
+
+    <header class="topbar">
+        <div>
+            <h1>Support Dashboard</h1>
+            <div class="subtitle">Monitor, classify and manage IT support requests.</div>
+        </div>
+
+        <div class="user-chip">
+            <i class="bi bi-person-circle me-2"></i>Support Team
+        </div>
+    </header>
+
+
+    <div class="flash-area">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show py-2" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endwith %}
+    </div>
+
+
+    <!-- DASHBOARD STATISTICS -->
+    <section id="overview" class="section-anchor">
+        <div class="row g-3">
+
+            <div class="col-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="stat-label">Total Tickets</span>
+                        <span class="stat-icon icon-blue"><i class="bi bi-ticket"></i></span>
+                    </div>
+                    <div class="stat-value">{{ stats.total }}</div>
+                    <small class="muted">All submitted tickets</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="stat-label">Open Tickets</span>
+                        <span class="stat-icon icon-orange"><i class="bi bi-inbox"></i></span>
+                    </div>
+                    <div class="stat-value">{{ stats.open }}</div>
+                    <small class="muted">Awaiting action</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="stat-label">Critical Tickets</span>
+                        <span class="stat-icon icon-red"><i class="bi bi-exclamation-triangle"></i></span>
+                    </div>
+                    <div class="stat-value">{{ stats.critical }}</div>
+                    <small class="muted">Require urgent attention</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="stat-label">Resolved Tickets</span>
+                        <span class="stat-icon icon-green"><i class="bi bi-check-circle"></i></span>
+                    </div>
+                    <div class="stat-value">{{ stats.resolved }}</div>
+                    <small class="muted">Successfully completed</small>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- CREATE TICKET -->
+    <section id="create-ticket" class="section-space section-anchor">
+        <div class="panel">
+
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <div class="panel-title">Create a Support Ticket</div>
+                    <div class="panel-subtitle">Submit an issue for AI-powered classification and prioritization.</div>
+                </div>
+                <i class="bi bi-file-earmark-plus fs-3 text-primary"></i>
+            </div>
+
+            <form method="POST" action="{{ url_for('home') }}#create-ticket">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Employee Name *</label>
+                        <input type="text" name="employee_name" class="form-control"
+                               placeholder="Enter employee name" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" name="email" class="form-control"
+                               placeholder="employee@company.com" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Department *</label>
+                        <select name="department" class="form-select" required>
+                            <option value="">Select department</option>
+                            <option>IT</option>
+                            <option>Human Resources</option>
+                            <option>Finance</option>
+                            <option>Operations</option>
+                            <option>Sales</option>
+                            <option>Marketing</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Business Impact *</label>
+                        <select name="business_impact" class="form-select" required>
+                            <option value="">Select business impact</option>
+                            <option value="High">High - Major business disruption</option>
+                            <option value="Medium">Medium - Work partially affected</option>
+                            <option value="Low">Low - Minor inconvenience</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Ticket Title *</label>
+                        <input type="text" name="title" class="form-control"
+                               placeholder="Briefly describe the issue" required>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Ticket Description *</label>
+                        <textarea name="description" class="form-control" rows="4"
+                                  placeholder="Explain the issue, when it started and how it affects your work..."
+                                  required></textarea>
+                    </div>
+
+                    <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-2 pt-2">
+                        <small class="muted"><i class="bi bi-info-circle me-1"></i>Fields marked * are required.</small>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-stars me-2"></i>Submit Ticket & Analyze
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+
+
+            {% if result %}
+            <div class="result-panel mt-4">
+
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-robot fs-4 text-primary"></i>
+                    <div>
+                        <div class="fw-bold">AI Classification Results</div>
+                        <small class="muted">Your ticket has been analyzed and stored.</small>
+                    </div>
+                </div>
+
+                <div class="row g-2">
+
+                    <div class="col-6 col-md">
+                        <div class="result-item">
+                            <small>Category</small>
+                            <strong>{{ result.category }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md">
+                        <div class="result-item">
+                            <small>Severity</small>
+                            <strong>{{ result.severity }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md">
+                        <div class="result-item">
+                            <small>Business Impact</small>
+                            <strong>{{ result.business_impact }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md">
+                        <div class="result-item">
+                            <small>Priority</small>
+                            <strong class="text-danger">{{ result.priority }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md">
+                        <div class="result-item">
+                            <small>Model Confidence</small>
+                            <strong>{{ result.confidence }}%</strong>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </section>
+
+
+    <!-- ANALYTICS -->
+    <section id="analytics" class="section-space section-anchor">
+        <div class="row g-3">
+
+            <div class="col-lg-6">
+                <div class="panel mb-0">
+                    <div class="panel-title">Tickets by Category</div>
+                    <div class="panel-subtitle mb-3">Distribution of submitted support issues</div>
+                    <div class="chart-wrap">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="panel mb-0">
+                    <div class="panel-title">Tickets by Priority</div>
+                    <div class="panel-subtitle mb-3">Priority distribution across tickets</div>
+                    <div class="chart-wrap">
+                        <canvas id="priorityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ALL TICKETS -->
+    <section id="tickets" class="section-space section-anchor">
+        <div class="panel">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div>
+                    <div class="panel-title">All Support Tickets</div>
+                    <div class="panel-subtitle">Live records retrieved from your SQLite database.</div>
+                </div>
+                <span class="badge text-bg-light border text-dark">
+                    {{ tickets|length }} record(s) shown
+                </span>
+            </div>
+
+
+            <form method="GET" action="{{ url_for('home') }}#tickets" class="filter-row mb-3">
+
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search ID, employee, title or email"
+                       value="{{ search }}">
+
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for item in ['Network', 'VPN', 'Password', 'Software', 'Hardware', 'System'] %}
+                    <option value="{{ item }}" {% if category_filter == item %}selected{% endif %}>
+                        {{ item }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="priority" class="form-select">
+                    <option value="">All Priorities</option>
+                    {% for item in ['P1', 'P2', 'P3', 'P4'] %}
+                    <option value="{{ item }}" {% if priority_filter == item %}selected{% endif %}>
+                        {{ item }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    {% for item in ['Open', 'In Progress', 'Resolved'] %}
+                    <option value="{{ item }}" {% if status_filter == item %}selected{% endif %}>
+                        {{ item }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search me-1"></i>Filter
+                </button>
+
+                <a href="{{ url_for('home') }}#tickets" class="btn btn-outline-secondary">
+                    Reset
+                </a>
+
+            </form>
+
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Employee / Department</th>
+                            <th>Issue</th>
+                            <th>Category</th>
+                            <th>Severity</th>
+                            <th>Priority</th>
+                            <th>Impact</th>
+                            <th>Confidence</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Update Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td class="fw-bold">#{{ ticket['ticket_id'] }}</td>
+
+                            <td>
+                                <div class="ticket-title">{{ ticket['employee_name'] }}</div>
+                                <small class="muted">{{ ticket['department'] }}</small>
+                            </td>
+
+                            <td>
+                                <div class="ticket-title">{{ ticket['title'] }}</div>
+                                <small class="muted" title="{{ ticket['description'] }}">
+                                    {{ ticket['description'][:55] }}{% if ticket['description']|length > 55 %}...{% endif %}
+                                </small>
+                            </td>
+
+                            <td>{{ ticket['category'] }}</td>
+
+                            <td>
+                                <span class="priority {{ ticket['severity']|lower }}">
+                                    {{ ticket['severity'] }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="priority {{ ticket['priority']|lower }}">
+                                    {{ ticket['priority'] }}
+                                </span>
+                            </td>
+
+                            <td>{{ ticket['business_impact'] }}</td>
+
+                            <td>
+                                {% if ticket['confidence'] is not none %}
+                                    {{ "%.2f"|format(ticket['confidence'] * 100) }}%
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if ticket['status'] == 'Open' %}
+                                    <span class="status status-open">Open</span>
+                                {% elif ticket['status'] == 'In Progress' %}
+                                    <span class="status status-progress">In Progress</span>
+                                {% else %}
+                                    <span class="status status-resolved">Resolved</span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ ticket['created_at'] }}</td>
+
+                            <td>
+                                <form method="POST"
+                                      action="{{ url_for('change_status', ticket_id=ticket['ticket_id']) }}">
+                                    <select name="status" class="form-select form-select-sm"
+                                            onchange="this.form.submit()">
+                                        {% for item in ['Open', 'In Progress', 'Resolved'] %}
+                                        <option value="{{ item }}"
+                                            {% if ticket['status'] == item %}selected{% endif %}>
+                                            {{ item }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+
+                        {% else %}
+                        <tr>
+                            <td colspan="11" class="text-center py-5 muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                No tickets found. Submit a ticket or change your filters.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+
+    <footer class="text-center muted py-3 small">
+        SupportPilot · AI-Powered IT Service Desk · Built with Python, Flask and SQLite
+    </footer>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<div id="chart-data"
+     data-categories='{{ stats.categories | tojson | forceescape }}'
+     data-priorities='{{ stats.priorities | tojson | forceescape }}'>
+</div>
+
+<script>
+    const chartData = document.getElementById("chart-data");
+
+    const categoryData = JSON.parse(
+        chartData.dataset.categories || "[]"
+    );
+
+    const priorityData = JSON.parse(
+        chartData.dataset.priorities || "[]"
+    );
+
+    const categoryLabels = categoryData.map(item => item.category || "Unknown");
+    const categoryCounts = categoryData.map(item => item.count);
+
+    const priorityLabels = priorityData.map(item => item.priority || "Unknown");
+    const priorityCounts = priorityData.map(item => item.count);
+
+    new Chart(document.getElementById("categoryChart"), {
+        type: "doughnut",
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                data: categoryCounts,
+                backgroundColor: [
+                    "#3563e9", "#21a179", "#e5a13a",
+                    "#8b6be8", "#e36d83", "#50a6c8"
+                ],
+                borderWidth: 2,
+                borderColor: "#ffffff"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: { usePointStyle: true, padding: 16 }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById("priorityChart"), {
+        type: "bar",
+        data: {
+            labels: priorityLabels,
+            datasets: [{
+                label: "Number of Tickets",
+                data: priorityCounts,
+                backgroundColor: ["#dc4848", "#e5a13a", "#e5c64a", "#7b8ca8"],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Highlight the selected sidebar section while navigating
+    document.querySelectorAll(".side-link").forEach(link => {
+        link.addEventListener("click", function () {
+            document.querySelectorAll(".side-link").forEach(item =>
+                item.classList.remove("active")
+            );
+            this.classList.add("active");
+        });
+    });
+</script>
+
+</body>
+</html>
